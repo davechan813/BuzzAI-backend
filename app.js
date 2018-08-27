@@ -6,12 +6,17 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var popularityRouter = require ('./routes/popularity');
 
 var app = express();
+
+var nocache = require('nocache')
+app.use(nocache())
 
 app.use(function(req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   //'Content-Type': 'application/json',
+
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
@@ -31,6 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/popularity', popularityRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
