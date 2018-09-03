@@ -12,11 +12,12 @@ router.post('/', function(req, res1) {
     resolution: req.body.resolution
   })
   .then((res2) => {
-    console.log(res2);
+    // console.log(res2);
     res1.send(res2);
   })
   .catch((err) => {
     console.log(err);
+    res1.send(err);
   })
 });
 
