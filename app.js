@@ -7,6 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var popularityRouter = require ('./routes/popularity');
+var buzz10Router = require('./routes/buzz10')
 
 var app = express();
 
@@ -37,11 +38,45 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/popularity', popularityRouter)
+app.use('/buzz10', buzz10Router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
+
+var request = require('request');
+
+
+var options = {
+  url: 'https://api.twitter.com/oauth2/token',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+    'Authorization' : 'Basic M0FxbGVxOTNDUEttajFPaTlWeldqYzljQTpCTUFNN3Q3UWdtTTdEdzJBUEFPT3FmdTJZb3JXYk9WQXMwaE9EQWdpRUNraVFkcFFweg=='
+  },
+  body: "grant_type=client_credentials"
+};
+
+var store = require("store")
+
+function callback(error, response, body) {
+
+  if (!error && response.statusCode == 200) {
+    console.log(body);
+
+    store.set("key", JSON.parse(body).access_token)
+    
+     
+  } else {
+    console.log(error);
+  }
+}
+
+// request(options, callback);
+
+store.set("key", "AAAAAAAAAAAAAAAAAAAAAER18QAAAAAAuxBUIdgyeHHYJ42lNI%2FhjFINCKY%3DRsS6KTVpWCGU06S5wQNEkt06Awk08pPLVQsHvKs0nsyebn1zEF")
+
 
 // error handler
 app.use(function(err, req, res, next) {
@@ -53,5 +88,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 module.exports = app;
