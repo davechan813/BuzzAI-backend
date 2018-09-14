@@ -73,9 +73,11 @@ function callback(error, response, body) {
   }
 }
 
-// request(options, callback);
+request(options, callback);
 
-store.set("key", "AAAAAAAAAAAAAAAAAAAAAER18QAAAAAAuxBUIdgyeHHYJ42lNI%2FhjFINCKY%3DRsS6KTVpWCGU06S5wQNEkt06Awk08pPLVQsHvKs0nsyebn1zEF")
+
+// hardcoded version
+// store.set("key", "AAAAAAAAAAAAAAAAAAAAAER18QAAAAAAuxBUIdgyeHHYJ42lNI%2FhjFINCKY%3DRsS6KTVpWCGU06S5wQNEkt06Awk08pPLVQsHvKs0nsyebn1zEF")
 
 
 // error handler
