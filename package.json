@@ -13,6 +13,7 @@
     "google-trends-api": "^4.7.0",
     "http-errors": "~1.6.2",
     "memory-store": "0.0.1",
+    "mongoose": "^5.2.16",
     "morgan": "~1.9.0",
     "nocache": "^2.0.0",
     "pug": "2.0.0-beta11",
