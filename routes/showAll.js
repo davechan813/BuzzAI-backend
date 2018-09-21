@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var db_url = require('../keys').db_url;
 
 var router = express.Router();
 // router.use( bodyParser.json() );       // to support JSON-encoded bodies
@@ -8,7 +9,7 @@ router.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 })); 
 
-mongoose.connect('mongodb://potplus:ilovecs130@ds115360.mlab.com:15360/pawpawdb');
+mongoose.connect(db_url);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -59,10 +60,10 @@ router.post('/', function(req, res){
   var sortStr = req.body.sort;
 
   var sortObj = null;
-  if(sortStr == 'followersPlus') sortObj = {followers: 1};
-  else if(sortStr == 'followersMinus') sortObj = {followers: -1};
-  else if(sortStr == 'engagementPlus') sortObj = {engagements: 1};
-  else if(sortStr == 'engagementMinus') sortObj = {engagements: -1};
+  if(sortStr == 'followersPlus') sortObj = {Followers: 1};
+  else if(sortStr == 'followersMinus') sortObj = {Followers: -1};
+  else if(sortStr == 'engagementPlus') sortObj = {Engagements: 1};
+  else if(sortStr == 'engagementMinus') sortObj = {Engagements: -1};
   else sortObj = {};
 
   Accounts.find().skip(start).limit(length).sort(sortObj).find(function (err, accounts) {
