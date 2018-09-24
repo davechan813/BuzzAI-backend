@@ -1,6 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var influencers = require('../data/Influencer_list'); // import json file (name to Influencer_list.json)
+var influencers = require('../data/influencer_list'); // import json file (name to Influencer_list.json)
 var db_url = require('../keys').db_url;
 
 var router = express.Router();
