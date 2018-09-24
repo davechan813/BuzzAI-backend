@@ -67,12 +67,12 @@ router.post('/', function(req, res){
   var sortStr = req.body.sort;
   console.log(searchStr);
 
-  var sortObj = null;
+  var sortObj = {};
   if(sortStr == 'followersPlus') sortObj = {Followers : 1};
-  else if(sortStr == 'followersMinus') sortObj = {Followers : -1};
-  else if(sortStr == 'engagementPlus') sortObj = {Posts : 1};
-  else if(sortStr == 'engagementMinus') sortObj = {Posts : -1};
-  else sortObj = {};
+  if(sortStr == 'followersMinus') sortObj = {Followers : -1};
+  if(sortStr == 'engagementPlus') sortObj = {Posts : 1};
+  if(sortStr == 'engagementMinus') sortObj = {Posts : -1};
+  
 
   Accounts.find({$text: {$search: searchStr}}).sort(sortObj).find(function (err, accounts) {
     if (err) return function(err) { console.log(err); };
