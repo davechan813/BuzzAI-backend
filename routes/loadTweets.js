@@ -6,7 +6,7 @@ var async = require('async');
 
 // TODO: handle rejection StatusCodeError: 400
 router.get('/', function(req, res) {
-    var queryStr = req.query;
+    var queryStr = req.param('query');
     console.log("loading tweets for " + queryStr);
     var store = require('store');
     var key = store.get('key'); // twitter api key
