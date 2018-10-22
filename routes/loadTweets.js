@@ -14,6 +14,8 @@ router.get('/', function(req, res) {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization' : 'Bearer ' + key
     };
+    queryStr = queryStr.replace('#', '%23'); // hashtag
+
     var options = {
       url: 'https://api.twitter.com/1.1/search/tweets.json?q=' + queryStr,
       method: 'GET',
