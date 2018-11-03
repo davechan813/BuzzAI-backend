@@ -20,6 +20,7 @@ var oidRouter = require('./routes/oid.js');
 var showAllRouter = require('./routes/showAll.js');
 var loadTweets = require('./routes/loadTweets.js');
 var interestOverTime = require('./routes/interestOverTime.js');
+var getTwitterKey = require('./routes/getTwitterKey.js');
 
 var app = express();
 app.use(nocache());
@@ -57,6 +58,7 @@ app.use('/influencers/oid', oidRouter);
 app.use('/showAll', showAllRouter);
 app.use('/loadTweets', loadTweets);
 app.use('/interestOverTime', interestOverTime);
+app.use('/getTwitterKey', getTwitterKey);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
