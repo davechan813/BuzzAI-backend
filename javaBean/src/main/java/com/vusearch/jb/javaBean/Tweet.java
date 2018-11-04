@@ -1,8 +1,8 @@
 package com.vusearch.jb.javaBean;
 
 public class Tweet {
-    String name, url, promoted_content, query;
-    int tweet_volume;
+    private String name, url, promoted_content, query;
+    private int tweet_volume;
 
     public Tweet(String name, String url, String promoted_content, String query, int tweet_volume) {
         this.name = name;
