@@ -9,6 +9,8 @@ import com.mashape.unirest.http.Unirest;
 import com.sun.prism.shader.Solid_ImagePattern_Loader;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.google.gson.*;
@@ -16,6 +18,8 @@ import com.vusearch.jb.javaBean.CityRepository;
 import com.vusearch.jb.javaBean.City;
 import com.vusearch.jb.javaBean.Tweet;
 import com.mashape.unirest.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 public class CityController {
@@ -180,5 +184,17 @@ public class CityController {
             repository.save(c);
         }
         return "Success";
+    }
+
+
+    @RequestMapping("/getAccumlatedCityBuzz")
+    public @ResponseBody ArrayList<Tweet> getAccumlatedCityBuzz(@RequestParam(value="city", defaultValue = "Tokyo") String cityName) {
+        City c = repository.findByname(cityName);
+        if (c != null) {
+            List<Tweet> tmp = c.getTweetsLst();
+            return (ArrayList)tmp;
+        }
+        return new ArrayList<>();
+
     }
 }

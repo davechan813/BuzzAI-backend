@@ -8,4 +8,5 @@ import com.vusearch.jb.javaBean.City;
 public interface CityRepository extends MongoRepository<City, String> {
     City findByid(ObjectId id);
     List<City> findAll();
+    City findByname(String name);
 }
