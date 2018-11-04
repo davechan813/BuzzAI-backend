@@ -2,26 +2,25 @@ package com.vusearch.jb.javaBean;
 import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import com.vusearch.jb.javaBean.Tweet;
 
 public class City {
     @Id
-    private ObjectId _id;
+    private ObjectId id;
     private String name;
     private List<Tweet> tweetsLst;
 
     public City(ObjectId id, String name, List<Tweet> tweetsLst) {
-        this._id = id;
+        this.id = id;
         this.name = name;
         this.tweetsLst = tweetsLst;
     }
 
     public ObjectId getId() {
-        return _id;
+        return id;
     }
 
     public void setId(ObjectId id) {
-        this._id = id;
+        this.id = id;
     }
 
     public String getName() {

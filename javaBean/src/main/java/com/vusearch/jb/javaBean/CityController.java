@@ -1,6 +1,7 @@
 package com.vusearch.jb.javaBean;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -54,17 +55,14 @@ public class CityController {
 
     @RequestMapping("/test")
     public String tests() {
-        List<String> cityList = new ArrayList<>();
-        cityList.add("New York");
-        cityList.add("Tokyo");
 
-        List<City> lst = this.fetchCityFromDB(cityList);
 
-        
+        this.updateDB(5);
+
         return "hello";
     }
 
-    public List<City> fetchCityFromDB(List<String> cityList) {
+    public List<City> fetchCityFromAPI(List<String> cityList) {
         // for every city and its tweets fetched from the nodejs API
         // need some http request library
         // return an arraylist of <City>, each city has a filled List<Tweet> from nodejs api
@@ -77,8 +75,13 @@ public class CityController {
                 String jsonStr = response.getBody().toString();
                 jsonStr = jsonStr.substring(1, jsonStr.length() - 1);
                 JsonElement jsonElement = new JsonParser().parse(jsonStr);
-                JsonObject jsonObject = jsonElement.getAsJsonObject();
-
+                JsonObject jsonObject = null;
+                try {
+                     jsonObject = jsonElement.getAsJsonObject();
+                } catch (Exception e) {
+                    System.out.println("!!!CIty is " + s);
+                    continue;
+                }
                 JsonArray trends = jsonObject.getAsJsonArray("trends");
 
                 Iterator<JsonElement> it = trends.iterator();
@@ -96,6 +99,14 @@ public class CityController {
 
                 City myCity = new City(new ObjectId(), s, twtLst);
                 lst.add(myCity);
+                System.out.println("Successfully added " + s);
+                try {
+
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (Exception e) {
+                    continue;
+                }
+
             } else {
                 continue;
             }
@@ -106,9 +117,67 @@ public class CityController {
         return lst;
     }
 
-    public void updateDB(List<City> lst) {
+    public void updateDB(int tweetLimit) {
         // fetch all Cities from mongodb
         // merge with lst. but the lst of each city has a limit, so kick some of tweets out of the list,
         // replace with new tweets from lst, then upload updated City objects to DB
+        List<City> onlineCityLst = repository.findAll();
+
+        List<City> localCityList = CityListParser.getList();
+
+        List<String> cityNameList = new ArrayList<>();
+
+        List<City> toBeUploaded = new ArrayList<>();
+
+        for (City c : localCityList) {
+            cityNameList.add(c.getName());
+        }
+
+        // here we assume every city from onlineCitylst there will be a match for it from localCitylst
+
+
+        // for each city from onlinecity list, modify its tweets list field.
+
+        List<City> newCities = this.fetchCityFromAPI(cityNameList);  // cities from API
+
+        for (City c : onlineCityLst) {
+            List<Tweet> tl = c.getTweetsLst();
+            // add new tweet to tl
+            String name = c.getName();
+            City newC = null;
+
+            // linear search to find the correct city
+            for (City tmp : newCities) {
+                if (tmp.getName() == name) newC = tmp;
+            }
+
+            // when network error and no newC, then we keep the origin city info of mongodb
+            if (newC == null) {
+                toBeUploaded.add(c);  // so we did nothing but just putting back
+                continue;
+            }
+
+            for (Tweet t : newC.getTweetsLst()) {
+                c.getTweetsLst().add(t);
+            }
+
+            while (tl.size() > tweetLimit) tl.remove(0);  // if size > limit, remove first until
+            toBeUploaded.add(c);
+        }
+
+
+
+        System.out.println(toBeUploaded.size());
+
+
+    }
+
+    @RequestMapping("/init")
+    public String oneTimeInitCityDB () {
+        List<City> localCityList = CityListParser.getList();
+        for (City c : localCityList) {
+            repository.save(c);
+        }
+        return "Success";
     }
 }
