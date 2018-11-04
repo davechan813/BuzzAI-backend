@@ -102,7 +102,7 @@ public class CityController {
                 System.out.println("Successfully added " + s);
                 try {
 
-                    TimeUnit.SECONDS.sleep(10);
+                    TimeUnit.SECONDS.sleep(20);
                 } catch (Exception e) {
                     continue;
                 }
@@ -148,7 +148,7 @@ public class CityController {
 
             // linear search to find the correct city
             for (City tmp : newCities) {
-                if (tmp.getName() == name) newC = tmp;
+                if (tmp.getName().equals(name)) newC = tmp;
             }
 
             // when network error and no newC, then we keep the origin city info of mongodb
@@ -165,9 +165,10 @@ public class CityController {
             toBeUploaded.add(c);
         }
 
-
-
-        System.out.println(toBeUploaded.size());
+        for (City cc : toBeUploaded) {
+            repository.save(cc);
+            System.out.println("Saved to DB " + cc.getName());
+        }
 
 
     }
