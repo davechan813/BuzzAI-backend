@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.sun.prism.shader.Solid_ImagePattern_Loader;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,9 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.google.gson.*;
-import com.vusearch.jb.javaBean.CityRepository;
-import com.vusearch.jb.javaBean.City;
-import com.vusearch.jb.javaBean.Tweet;
+import org.springframework.scheduling.annotation.Scheduled;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+
 import com.mashape.unirest.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +27,9 @@ public class CityController {
 
     @Autowired
     CityRepository repository;
+
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
 
 
 
@@ -42,28 +46,20 @@ public class CityController {
 
     }
 
-    @RequestMapping("/save")
+    @RequestMapping("/sanity")
     public String index() {
-
-
-        Tweet twt = new Tweet("Guo", "hhhh..", "", "hh", 1);
-
-        List<Tweet> lst = new ArrayList<>();
-        lst.add(twt);
-
-        City myCity = new City(new ObjectId(), "Beijing",  lst);
-
-        repository.save(myCity);
-        return "Hello, world!";
+        return "I'm alive!";
     }
 
-    @RequestMapping("/test")
-    public String tests() {
-
-
-        this.updateDB(5);
-
-        return "hello";
+    // abt cron expression https://www.freeformatter.com/cron-expression-generator-quartz.html
+    // 0 0 12 * * ?   for 12 PM every day
+    // scheduled every day at what time? the time when the server starts
+    @RequestMapping("/updateDB")
+    @Scheduled(cron = "0 0 12 * * ?")
+    public String updateDB() {
+        this.updateDB(20);
+        System.out.println("Updated tweets at " + dateTimeFormatter.format(LocalDateTime.now()));
+        return "Success";
     }
 
     public List<City> fetchCityFromAPI(List<String> cityList) {
@@ -116,8 +112,6 @@ public class CityController {
             }
 
         }
-
-
         return lst;
     }
 
@@ -165,10 +159,11 @@ public class CityController {
                 c.getTweetsLst().add(t);
             }
 
-            while (tl.size() > tweetLimit) tl.remove(0);  // if size > limit, remove first until
+            while (tl.size() > tweetLimit) tl.remove(0);  // if size > limit, remove first until limit
             toBeUploaded.add(c);
         }
 
+        repository.deleteAll();
         for (City cc : toBeUploaded) {
             repository.save(cc);
             System.out.println("Saved to DB " + cc.getName());
@@ -177,9 +172,11 @@ public class CityController {
 
     }
 
+    // call only when initial setup. necessary when the DB was reset. Never call it when the DB is living normally
     @RequestMapping("/init")
     public String oneTimeInitCityDB () {
         List<City> localCityList = CityListParser.getList();
+        repository.deleteAll();
         for (City c : localCityList) {
             repository.save(c);
         }
@@ -191,10 +188,11 @@ public class CityController {
     public @ResponseBody ArrayList<Tweet> getAccumlatedCityBuzz(@RequestParam(value="city", defaultValue = "Tokyo") String cityName) {
         City c = repository.findByname(cityName);
         if (c != null) {
+            System.out.println("Requested to get tweets for " + c.getName());
             List<Tweet> tmp = c.getTweetsLst();
             return (ArrayList)tmp;
         }
-        return new ArrayList<>();
 
+        return new ArrayList<>();
     }
 }
