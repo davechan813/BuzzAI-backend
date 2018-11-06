@@ -46,6 +46,19 @@ public class CityController {
 
     }
 
+    // returning a list of supported city names.
+    @RequestMapping("/getCityList")
+    public @ResponseBody List<String> getCityLst() {
+        System.out.println("Requested list of cities at " + dateTimeFormatter.format(LocalDateTime.now()));
+        List<City> lst = repository.findAll();
+        List<String> ret = new ArrayList<>();
+        Iterator<City> it = lst.iterator();
+        while(it.hasNext()) {
+            ret.add(it.next().getName());
+        }
+        return ret;
+    }
+
     @RequestMapping("/sanity")
     public String index() {
         return "I'm alive!";
