@@ -4,6 +4,32 @@ var request = require('request');
 var rp = require('request-promise');
 var async = require('async');
 
+
+// TODO: Change this hardcode data to the return value of  buzz-jb.us-east-2.elasticbeanstalk.com/getCityList
+let goodCityList = [
+  "New York",
+  "London",
+  "Moscow",
+  "Osaka",
+  "Paris",
+  "Los Angeles",
+  "Chicago",
+  "Dallas",
+  "Philadelphia",
+  "San Francisco",
+  "Sydney",
+  "Seoul",
+  "Mumbai",
+  "Boston",
+  "Frankfurt",
+  "Tokyo",
+  "San Jose",
+  "Toronto",
+  "Singapore",
+  "Seattle",
+  "Las Vegas"
+]
+
 function isRealValue(obj)
 {
  return obj && obj !== 'null' && obj !== 'undefined';
@@ -13,6 +39,34 @@ function isRealValue(obj)
 router.post('/', function(req, res) {
   var placeNameList = req.body.placeName.split(', '); // 'Los Angeles, CA, USA' --> ['Los Angeles', 'CA', 'USA']
   placeNameList.push('world'); // --> ['Los Angeles', 'CA', 'USA', 'world']
+
+
+
+  var options_java = {
+    url: "http://buzz-jb.us-east-2.elasticbeanstalk.com/getAccumlatedCityBuzz",
+    method: 'GET',
+    qs: {
+      'city' : placeNameList[0]
+    }
+  };
+  if (isRealValue(placeNameList[0]) && goodCityList.indexOf(placeNameList[0]) >= 0) {
+
+
+    request(options_java, function (error, response, body) {
+      if (error || response.statusCode != 200) {
+        res.send(null);
+        return;
+      };
+      var tmpObj = [];
+      var tmpObjInner = new Object();
+      tmpObjInner.trends = JSON.parse(body);
+      tmpObj[0] = tmpObjInner;
+      res.send(tmpObj);
+      res.end();
+      return;
+    });
+
+  } else {
 
   // recursive functions to search for results. If a smaller range location returns data, send it back. Else, recursion.
   // https://stackoverflow.com/questions/21184340/async-for-loop-in-node-js
@@ -110,6 +164,6 @@ router.post('/', function(req, res) {
 
     });
   })(0);
-});
+}});
 
 module.exports = router;
