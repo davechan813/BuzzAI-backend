@@ -36,7 +36,7 @@ public class CityController {
     public HttpResponse <JsonNode> getCityTweetsFromAPI (String cityStr) {
         HttpResponse<JsonNode> res = null;
         try {
-            res = Unirest.post("http://Buzzai-env-2.us-east-2.elasticbeanstalk.com/buzz10")
+            res = Unirest.post("http://Buzzai-env-2.us-east-2.elasticbeanstalk.com/buzz10/internal")
                     .header("Content-Type", "application/x-www-form-urlencoded").field("placeName", cityStr)
                     .asJson();
         } catch (Exception e) {
@@ -152,10 +152,17 @@ public class CityController {
         List<City> newCities = this.fetchCityFromAPI(cityNameList);  // cities from API
 
         for (City c : onlineCityLst) {
+
             List<Tweet> tl = c.getTweetsLst();
             // add new tweet to tl
             String name = c.getName();
             City newC = null;
+
+            // avoid duplicate
+            Set<String> set = new HashSet<>();
+            for (Tweet x : tl) {
+                set.add(x.getName());
+            }
 
             // linear search to find the correct city
             for (City tmp : newCities) {
@@ -169,7 +176,8 @@ public class CityController {
             }
 
             for (Tweet t : newC.getTweetsLst()) {
-                c.getTweetsLst().add(t);
+                if (!set.contains(t.getName()))
+                    c.getTweetsLst().add(t);
             }
 
             while (tl.size() > tweetLimit) tl.remove(0);  // if size > limit, remove first until limit
