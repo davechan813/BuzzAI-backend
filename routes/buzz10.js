@@ -4,6 +4,9 @@ var request = require('request');
 var rp = require('request-promise');
 var async = require('async');
 
+let generateRandomNumber = function (max) {
+  return Math.floor(Math.random() * max);
+}
 
 // TODO: Change this hardcode data to the return value of  buzz-jb.us-east-2.elasticbeanstalk.com/getCityList
 let goodCityList = [
@@ -40,8 +43,6 @@ router.post('/', function(req, res) {
   var placeNameList = req.body.placeName.split(', '); // 'Los Angeles, CA, USA' --> ['Los Angeles', 'CA', 'USA']
   placeNameList.push('world'); // --> ['Los Angeles', 'CA', 'USA', 'world']
 
-
-
   var options_java = {
     url: "http://buzz-jb.us-east-2.elasticbeanstalk.com/getAccumlatedCityBuzz",
     method: 'GET',
@@ -49,6 +50,8 @@ router.post('/', function(req, res) {
       'city' : placeNameList[0]
     }
   };
+
+  var store = require ('store'); // to store the mapping of tweet buzzword to a random number
   if (isRealValue(placeNameList[0]) && goodCityList.indexOf(placeNameList[0]) >= 0) {
 
   // if (false) {
@@ -69,6 +72,23 @@ router.post('/', function(req, res) {
             "woeid": 2442047
         }
       ];
+
+      var max = 0;
+      tmpObjInner.trends.forEach(function(element) {
+        max = Math.max(element.tweet_volume, max);
+      });
+
+      tmpObjInner.trends.forEach(function(element) {
+        if (element.tweet_volume == 0) {
+          var num = store.get(element.name);
+          if (typeof num === 'undefined') {
+            element.tweet_volume = generateRandomNumber (max);
+            store.set(element.name, element.tweet_volume);
+          } else {
+            element.tweet_volume = num;
+          }
+        }
+      });
 
       tmpObj[0] = tmpObjInner;
       res.send(tmpObj);
